@@ -1,0 +1,43 @@
+version: '3'
+
+networks:
+  net:
+    driver: bridge
+
+volumes:
+  db-data:
+    driver: local
+  app-data:
+    driver: local
+  app-logs:
+    driver: local
+
+services:
+  dbase:
+    image: postgres:15.3-alpine
+    container_name: opencr-db
+    networks:
+      - net
+#    ports:
+#      - "5433:5432"
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=post
+      - PGDATA=/postgresql/dbase
+    volumes:
+      - db-data:/postgresql/dbase
+
+  app:
+    build:
+      context: .
+    container_name: opencr-app
+    networks:
+      - net
+    ports:
+      - "8080:8080"
+    depends_on:
+      - dbase
+    volumes:
+      - app-data:/usr/local/tomcat/foto
+      - app-logs:/usr/local/tomcat/logs
